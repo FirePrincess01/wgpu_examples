@@ -1,15 +1,15 @@
-
+//! implements all the render pipelines
 
 use crate::performance_monitor::PerformanceMonitor;
 use wgpu_renderer::renderer::{WgpuRenderer, self};
 use wgpu_renderer::vertex_color_shader::{self, VertexColorShaderDraw};
 use wgpu_renderer::vertex_texture_shader::{self, VertexTextureShaderDraw};
-use winit::event::{VirtualKeyCode, ElementState, MouseScrollDelta};
+use winit::event::{ElementState, MouseScrollDelta};
 
-pub struct Renderer 
+pub struct Renderer<'a>
 {   
     // wgpu_renderer
-    pub wgpu_renderer: WgpuRenderer,
+    pub wgpu_renderer: WgpuRenderer<'a>,
 
     pub camera_bind_group_layout: vertex_color_shader::CameraBindGroupLayout,
     pub texture_bind_group_layout: vertex_texture_shader::TextureBindGroupLayout,
@@ -31,11 +31,11 @@ pub struct Renderer
     camera_uniform_orthographic_buffer: vertex_color_shader::CameraUniformBuffer,
 }
 
-impl Renderer {
-    pub async fn new(window: &winit::window::Window) -> Self 
+impl<'a> Renderer<'a> {
+    pub async fn new(window: &'a winit::window::Window) -> Self 
     {   
         // wgpu renderer
-        let mut wgpu_renderer = WgpuRenderer::new(window).await; 
+        let mut wgpu_renderer = WgpuRenderer::new(window, None).await; 
         let surface_format = wgpu_renderer.config().format;
         let _surface_width = wgpu_renderer.config().width;
         let _surface_height = wgpu_renderer.config().height;
@@ -148,6 +148,10 @@ impl Renderer {
         camera.pitch = pitch;
     }
 
+    pub fn size(&self) -> winit::dpi::PhysicalSize<u32> {
+        self.wgpu_renderer.size()
+    }
+
     pub fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
         // self.size = new_size;
         
@@ -166,7 +170,7 @@ impl Renderer {
         self.camera_uniform_buffer.update(self.wgpu_renderer.queue(), self.camera_uniform);
     }
 
-    pub fn process_keyboard(&mut self, key: VirtualKeyCode, state: ElementState) -> bool 
+    pub fn process_keyboard(&mut self, key: winit::keyboard::KeyCode, state: ElementState) -> bool 
     {
         self.camera_controller.process_keyboard(key, state)
     }
@@ -179,7 +183,8 @@ impl Renderer {
     pub fn render(&mut self, 
         meshes: &[&dyn VertexTextureShaderDraw],
         mesh_gui: &[&dyn VertexTextureShaderDraw],
-        performance_monitor: &mut PerformanceMonitor) -> Result<(), wgpu::SurfaceError>
+        performance_monitor: &mut PerformanceMonitor
+    ) -> Result<(), wgpu::SurfaceError>
     {
         performance_monitor.watch.start(0);
         let output = self.wgpu_renderer.get_current_texture()?;
@@ -206,17 +211,19 @@ impl Renderer {
                             b: 0.03,
                             a: 1.0,
                         }),
-                        store: true,
+                        store: wgpu::StoreOp::Store,
                     }
                 })], 
                 depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachment {
                     view: self.wgpu_renderer.get_depth_texture_view(),
                     depth_ops: Some(wgpu::Operations {
                         load: wgpu::LoadOp::Clear(1.0),
-                        store: true,
+                        store: wgpu::StoreOp::Store,
                     }),
                     stencil_ops: None,
-                }) 
+                }),
+                timestamp_writes: Default::default(),
+                occlusion_query_set: Default::default(),
             });
 
             self.pipeline_texture.bind(&mut render_pass);

@@ -75,8 +75,8 @@
 		{
 			"label": "wasm-pack wgpu_renderer_example",
 			"type": "shell",
-			// "command": "RUSTFLAGS=--cfg=web_sys_unstable_apis wasm-pack build --target web",
-			"command": "wasm-pack build wgpu_renderer_example --target web",
+			"command": "RUSTFLAGS=--cfg=web_sys_unstable_apis wasm-pack build wgpu_renderer_example --target web",
+			// "command": "wasm-pack build wgpu_renderer_example --target web",
 			"problemMatcher": [
 				"$rustc"
 			],

@@ -1,3 +1,7 @@
+// #![deny(unused_crate_dependencies)]
+
+//! Main Application file
+
 mod renderer;
 mod geometry;
 mod performance_monitor;
@@ -5,30 +9,26 @@ mod textured_quad;
 
 
 use wgpu_renderer::default_window;
-use winit::event::{WindowEvent, KeyboardInput, VirtualKeyCode, ElementState, TouchPhase, MouseButton};
+use winit::event::{ElementState, MouseButton, TouchPhase, WindowEvent};
 
 #[cfg(target_arch="wasm32")]
 use wasm_bindgen::prelude::*;
 
 
-struct WgpuRendererExample {
-    size: winit::dpi::PhysicalSize<u32>,
+struct WgpuRendererExample<'a>{
     scale_factor: f32,
 
-    renderer: renderer::Renderer,
+    renderer: renderer::Renderer<'a>,
     performance_monitor: performance_monitor::PerformanceMonitor,
 
     // data
     textured_quad: textured_quad::TexturedQuad,
 }
 
-impl WgpuRendererExample {
-    pub async fn new(window: &winit::window::Window) -> Self 
+impl<'a> WgpuRendererExample<'a> {
+    pub async fn new(window: &'a winit::window::Window) -> Self 
     {
-        let size = window.inner_size();
         let scale_factor = window.scale_factor() as f32;
-        let _width = size.width;
-        let _height = size.height;
 
         let mut renderer = renderer::Renderer::new(window).await;
         let performance_monitor = performance_monitor::PerformanceMonitor::new(
@@ -40,7 +40,6 @@ impl WgpuRendererExample {
             &renderer.texture_bind_group_layout);
         
         Self {
-            size,
             scale_factor,
 
             renderer,
@@ -69,17 +68,13 @@ fn apply_scale_factor(position: winit::dpi::PhysicalPosition<f64>, scale_factor:
     }
 }
 
-impl default_window::DefaultWindowApp for WgpuRendererExample 
+impl<'a> default_window::DefaultWindowApp for WgpuRendererExample<'a>
 {
     fn get_size(&self) -> winit::dpi::PhysicalSize<u32> {
-        self.size
+        self.renderer.size()
     }
 
     fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
-        self.size = new_size;
-        let _width = new_size.width;
-        let _height = new_size.height;
-
         self.renderer.resize(new_size);
     }
 
@@ -97,9 +92,9 @@ impl default_window::DefaultWindowApp for WgpuRendererExample
         self.performance_monitor.watch.start(2);
             let res = match event {
                 WindowEvent::KeyboardInput {
-                    input:
-                        KeyboardInput {
-                            virtual_keycode: Some(VirtualKeyCode::F2),
+                    event:
+                        winit::event::KeyEvent {
+                            physical_key: winit::keyboard::PhysicalKey::Code(winit::keyboard::KeyCode::F2),
                             state: ElementState::Pressed,
                             ..
                         },
@@ -109,9 +104,9 @@ impl default_window::DefaultWindowApp for WgpuRendererExample
                     true
                 },
                 WindowEvent::KeyboardInput {
-                    input:
-                        KeyboardInput {
-                            virtual_keycode: Some(key),
+                    event:
+                        winit::event::KeyEvent {
+                            physical_key: winit::keyboard::PhysicalKey::Code(key),
                             state,
                             ..
                         },
@@ -183,7 +178,13 @@ impl default_window::DefaultWindowApp for WgpuRendererExample
 pub async fn run()
 {
     let default_window = default_window::DefaultWindow::new();
-    let app = WgpuRendererExample::new(&default_window.window).await;
+    let event_loop = default_window.event_loop;
+    let window = default_window.window;
 
-    default_window::run(default_window, app);
+    // log::info!("log info");
+    // log::warn!("log warn");
+    // log::error!("log error");
+
+    let app = WgpuRendererExample::new(&window).await;
+    default_window::run(event_loop, &window, app);
 }
