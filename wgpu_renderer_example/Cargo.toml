@@ -1,0 +1,44 @@
+[package]
+name = "wgpu_renderer_example"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[[bin]]
+name = "wgpu_renderer_example"
+test = false
+doc = false
+
+[dependencies]
+# wgpu_renderer = { git = "https://github.com/FirePrincess01/wgpu_renderer.git", branch = "main" } 
+wgpu_renderer = { path = "../wgpu_renderer" }
+cfg-if = "1"
+winit = "0.29"
+cgmath = "0.18"
+glam = "0.25"
+
+[dependencies.image]
+version = "0.24"
+features = ["png", "jpeg"]
+
+[target.'cfg(target_arch = "x86_64")'.dependencies]
+wgpu = { version = "0.19" }
+instant = "0.1"
+pollster = "0.3" 
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+console_error_panic_hook = "0.1.6"
+console_log = "1.0.0"
+instant = { version = "0.1", features = [ "wasm-bindgen" ] }
+wgpu = { version = "0.19", default-features = false, features = [ "webgl", "wgsl"  ]}
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+web-sys = { version = "0.3", features = [
+    "Document",
+    "Window",
+    "Element",
+]}
