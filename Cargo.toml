@@ -3,7 +3,8 @@
 members = [
     "wgpu_renderer",
     "wgpu_gui", 
-    "wgpu_gui_example", "wgpu_renderer_example",
+    "wgpu_gui_example", 
+    "wgpu_renderer_example",
 ]
 
 resolver = "2"
