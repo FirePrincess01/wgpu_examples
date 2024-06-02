@@ -8,9 +8,11 @@ mod performance_monitor;
 mod textured_quad;
 mod counter_gui;
 mod counter;
+mod counter_gui_subview;
 
 
-use wgpu_gui::core::{gui_functions::GuiFunctions, mouse_event::MouseEvent};
+use counter::Message;
+use wgpu_gui::core::{gui_functions::GuiElement, gui_message::GuiMessage, mouse_event::MouseEvent};
 use wgpu_renderer::default_window;
 use winit::event::{ElementState, MouseButton, TouchPhase, WindowEvent};
 
@@ -29,7 +31,8 @@ struct WgpuGuiExample<'a>{
 
     // gui
     mouse_event: MouseEvent,
-    counter: counter::Counter,
+    counter1: counter::Counter,
+    counter2: counter::Counter,
     counter_gui: counter_gui::CounterGui,
 }
 
@@ -47,10 +50,19 @@ impl<'a> WgpuGuiExample<'a> {
             &mut renderer.wgpu_renderer, 
             &renderer.texture_bind_group_layout);
 
+        // font 
+        let font_data = include_bytes!("../../wgpu_renderer/src/freefont/FreeMono.ttf");
+        let font = rusttype::Font::try_from_bytes(font_data as &[u8]).expect("Error constructing Font");
+
         // gui
         let mouse_event = MouseEvent::new();
-        let counter = counter::Counter::new();
-        let counter_gui = counter_gui::CounterGui::new();
+        let counter1 = counter::Counter::new();
+        let counter2 = counter::Counter::new();
+        let counter_gui = counter_gui::CounterGui::new(
+            &font, 
+            &mut renderer.wgpu_renderer, 
+            &renderer.texture_bind_group_layout,
+        );
         
         Self {
             scale_factor,
@@ -61,7 +73,8 @@ impl<'a> WgpuGuiExample<'a> {
             textured_quad,
 
             mouse_event,
-            counter,
+            counter1,
+            counter2,
             counter_gui,
         }
     }
@@ -70,17 +83,25 @@ impl<'a> WgpuGuiExample<'a> {
 
     fn handle_gui_mouse_pressed(&mut self, is_pressed: bool) -> bool {
         self.mouse_event.is_pressed = is_pressed;
-        self.handle_gui()
+        self.handle_gui_event()
     }
 
     fn handle_gui_mouse_moved(&mut self, x: u32, y: u32) -> bool {
         self.mouse_event.x = x;
         self.mouse_event.y = y;
-        self.handle_gui()
+        self.handle_gui_event()
     }
     
-    fn handle_gui(&mut self) -> bool {
-        self.counter_gui.mouse_event_update(&self.mouse_event, &mut self.counter)
+    fn handle_gui_event(&mut self) -> bool {
+
+        self.counter_gui.mouse_event(&self.mouse_event, &mut |message: Message| { 
+            match message{
+                Message::SubView1(message) => self.counter1.message(message),
+                Message::SubView2(message) => self.counter2.message(message),
+            }
+        });
+
+        true
     }
 
 }
@@ -113,7 +134,7 @@ impl<'a> default_window::DefaultWindowApp for WgpuGuiExample<'a>
         self.renderer.resize(new_size);
 
         let size = wgpu_gui::core::size::Size{width: new_size.width, height: new_size.height};
-        self.counter_gui.resize(size);
+        self.counter_gui.resize(0, 0, size);
     }
 
     fn update_scale_factor(&mut self, scale_factor: f32) {
@@ -125,7 +146,7 @@ impl<'a> default_window::DefaultWindowApp for WgpuGuiExample<'a>
 
         self.performance_monitor.update(&mut self.renderer.wgpu_renderer);
     
-        self.counter_gui.update(&self.counter);
+        self.counter_gui.update(&self.counter1, &self.counter2);
         self.counter_gui.update_device();
     }
 

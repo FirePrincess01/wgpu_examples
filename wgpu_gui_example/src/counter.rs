@@ -1,9 +1,14 @@
 use wgpu_gui::core::gui_message::GuiMessage;
 
 
-pub enum Message {
+pub enum CounterMessage {
     IncrementPressed,
     DecrementPressed,
+}
+
+pub enum Message {
+    SubView1(CounterMessage),
+    SubView2(CounterMessage),
 }
 
 pub struct Counter {
@@ -22,13 +27,13 @@ impl Counter {
     }
 }
 
-impl GuiMessage<Message> for Counter {
-    fn message(&mut self, message: Message) {
+impl GuiMessage<CounterMessage> for Counter {
+    fn message(&mut self, message: CounterMessage) {
         match message {
-            Message::IncrementPressed => {
+            CounterMessage::IncrementPressed => {
                 self.value += 1;
             }
-            Message::DecrementPressed => {
+            CounterMessage::DecrementPressed => {
                 self.value -= 1;
             }
         }

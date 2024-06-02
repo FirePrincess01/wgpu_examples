@@ -21,6 +21,7 @@ cfg-if = "1"
 winit = "0.29"
 cgmath = "0.18"
 glam = "0.25"
+rusttype = "0.9"
 
 [dependencies.image]
 version = "0.24"

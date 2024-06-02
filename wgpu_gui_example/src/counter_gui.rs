@@ -1,85 +1,64 @@
 
-use wgpu_gui::{core::{gui::Gui, gui_element::GuiElement, gui_functions::{GuiFunctions, GuiMessageFunctions}, gui_message::GuiMessage, layout::{Alignment, Layout}, mouse_event::MouseEvent}, widget::{button::Button, text::Text}};
+use wgpu_gui::{core::{gui_functions::GuiElementSubView, layout::{Alignment, Layout}, wgpu_gui::{LayoutElements, WgpuGui}}, widget::{text::Text, widget_factory::WidgetFactory}};
 
-use crate::counter::{self, Message};
-
-pub struct CounterGuiSubView {
-    text: Text,
-    layout: Layout,
-}
-
-impl CounterGuiSubView {
-    pub fn new() -> Self 
-    {
-        let text = Text::from_space(5).size(50);
-        let layout = Layout::new().align(Alignment::Center).horizontal_layout();
-
-        Self {
-            text,
-            layout,
-        }
-    }
-    pub fn update(&mut self, val: i32) {
-        self.text.value(val);
-    }
-}
-
-impl Gui for CounterGuiSubView {
-    type TMessage = Message;
-
-    fn layout(&mut self, f: &mut dyn FnMut(&mut Layout, &mut [&mut (dyn GuiFunctions<Self::TMessage>)])) {
-        f(&mut self.layout, &mut [
-            &mut self.text, 
-        ]);
-    }
-}
+use crate::{counter::{self, Message}, counter_gui_subview::CounterGuiSubView};
 
 pub struct CounterGui {
-    button_increment: Button<Message>,
     text: Text,
-    sub_view: CounterGuiSubView,
-    button_decrement: Button<Message>,
+    sub_view1: CounterGuiSubView,
+    sub_view2: CounterGuiSubView,
     layout: Layout,
+    on_changed: fn(Message) -> Message,
 }
 
 impl CounterGui {
-    pub fn new() -> Self 
+    pub fn new(
+        font: &rusttype::Font<'static>, 
+        wgpu_renderer: &mut dyn wgpu_renderer::renderer::WgpuRendererInterface,
+        texture_bind_group_layout: &wgpu_renderer::vertex_texture_shader::TextureBindGroupLayout,
+
+    ) -> Self 
     {
-        let button_increment = Button::new("increment").on_released(Message::IncrementPressed);
+        let mut widget_factory = WidgetFactory::new(font, wgpu_renderer, texture_bind_group_layout);
+
         let text = Text::from_space(5).size(50);
-        let sub_view = CounterGuiSubView::new();
-        let button_decrement = Button::new("decrement").on_released(Message::DecrementPressed);
+        let sub_view1 = CounterGuiSubView::new(&mut widget_factory, Message::SubView1);
+        let sub_view2 = CounterGuiSubView::new(&mut widget_factory, Message::SubView2);
         let layout = Layout::new().align(Alignment::Center).horizontal_layout();
+        let on_changed = |message: Message| -> Message { message };
 
         Self {
-            button_increment,
             text,
-            sub_view,
-            button_decrement,
+            sub_view1,
+            sub_view2,
             layout,
+            on_changed,
         }
     }
 
-    pub fn mouse_event_update(&mut self, mouse_event: &MouseEvent, counter: &mut counter::Counter) -> bool {
-        self.mouse_event(mouse_event, &mut [counter])
-    }
-
-    pub fn update(&mut self, counter: &counter::Counter) {
-        self.text.value(counter.value());
-        self.sub_view.update(counter.value());
+    pub fn update(&mut self, counter1: &counter::Counter, counter2: &counter::Counter) {
+        self.text.value(counter1.value());
+        self.sub_view1.update(counter1.value());
+        self.sub_view2.update(counter2.value());
     }
 }
 
-impl Gui for CounterGui {
+
+impl GuiElementSubView for CounterGui {
     type TMessage = Message;
-
-    fn layout(&mut self, f: &mut dyn FnMut(&mut Layout, &mut [&mut (dyn GuiFunctions<Self::TMessage>)])) {
-        f(&mut self.layout, &mut [
-            &mut self.button_increment, 
-            &mut self.text, 
-            &mut self.sub_view, 
-            &mut self.button_decrement
-        ]);
+    type TSubMessage = Message;
+    
+    fn get_elements(&mut self, ui: &mut WgpuGui<Self::TSubMessage>) {
+        ui.layout(&mut self.layout, &mut |elements: &mut LayoutElements<Self::TSubMessage>| {
+            elements.add(&mut self.text);
+            elements.add(&mut self.sub_view1);
+            elements.add(&mut self.sub_view2);
+        });
     }
+        
+    fn get_event_conversion_function(&self) -> fn(Self::TSubMessage) -> Self::TMessage {
+        self.on_changed
+    }    
 }
+
 
