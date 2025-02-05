@@ -9,9 +9,11 @@ mod textured_quad;
 mod counter_gui;
 mod counter;
 mod counter_gui_subview;
+mod test_examples;
 
 
 use counter::Message;
+use test_examples::ExampleTests;
 use wgpu_gui::core::{gui_functions::GuiElement, gui_message::GuiMessage, mouse_event::MouseEvent};
 use wgpu_renderer::default_window;
 use winit::event::{ElementState, MouseButton, TouchPhase, WindowEvent};
@@ -34,6 +36,9 @@ struct WgpuGuiExample<'a>{
     counter1: counter::Counter,
     counter2: counter::Counter,
     counter_gui: counter_gui::CounterGui,
+
+    // example tests
+    example_tests: ExampleTests,
 }
 
 impl<'a> WgpuGuiExample<'a> {
@@ -63,6 +68,12 @@ impl<'a> WgpuGuiExample<'a> {
             &mut renderer.wgpu_renderer, 
             &renderer.texture_bind_group_layout,
         );
+
+        let example_tests = ExampleTests::new(
+            &font, 
+            &mut renderer.wgpu_renderer, 
+            &renderer.texture_bind_group_layout,
+        );
         
         Self {
             scale_factor,
@@ -76,6 +87,8 @@ impl<'a> WgpuGuiExample<'a> {
             counter1,
             counter2,
             counter_gui,
+
+            example_tests,
         }
     }
 
@@ -94,11 +107,15 @@ impl<'a> WgpuGuiExample<'a> {
     
     fn handle_gui_event(&mut self) -> bool {
 
-        self.counter_gui.mouse_event(&self.mouse_event, &mut |message: Message| { 
-            match message{
-                Message::SubView1(message) => self.counter1.message(message),
-                Message::SubView2(message) => self.counter2.message(message),
-            }
+        // self.counter_gui.mouse_event(&self.mouse_event, &mut |message: Message| { 
+        //     match message{
+        //         Message::SubView1(message) => self.counter1.message(message),
+        //         Message::SubView2(message) => self.counter2.message(message),
+        //     }
+        // });
+
+        self.example_tests.mouse_event(&self.mouse_event, &mut |_message| {
+            println!("{:?}", _message);
         });
 
         true
@@ -134,7 +151,8 @@ impl<'a> default_window::DefaultWindowApp for WgpuGuiExample<'a>
         self.renderer.resize(new_size);
 
         let size = wgpu_gui::core::size::Size{width: new_size.width, height: new_size.height};
-        self.counter_gui.resize(0, 0, size);
+        // self.counter_gui.resize(0, 0, size);
+        self.example_tests.resize(0, 0, size);
     }
 
     fn update_scale_factor(&mut self, scale_factor: f32) {
@@ -146,8 +164,12 @@ impl<'a> default_window::DefaultWindowApp for WgpuGuiExample<'a>
 
         self.performance_monitor.update(&mut self.renderer.wgpu_renderer);
     
-        self.counter_gui.update(&self.counter1, &self.counter2);
-        self.counter_gui.update_device();
+        // self.counter_gui.update(&self.counter1, &self.counter2);
+        // self.counter_gui.update_device();
+
+        self.example_tests.update_device(&mut self.renderer.wgpu_renderer);
+        // self.example_tests.draw();
+
     }
 
     fn input(&mut self, event: &winit::event::WindowEvent) -> bool {
@@ -227,7 +249,9 @@ impl<'a> default_window::DefaultWindowApp for WgpuGuiExample<'a>
         self.renderer.render(
             &[&self.textured_quad],
             &[],
-            &mut self.performance_monitor)
+            &mut self.performance_monitor,
+            &mut self.example_tests,    
+            )
     }
 
 

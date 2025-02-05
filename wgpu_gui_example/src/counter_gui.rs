@@ -1,5 +1,5 @@
 
-use wgpu_gui::{core::{gui_functions::GuiElementSubView, layout::{Alignment, Layout}, wgpu_gui::{LayoutElements, WgpuGui}}, widget::{text::Text, widget_factory::WidgetFactory}};
+use wgpu_gui::{core::{gui_functions::GuiElementSubView, layout::{Alignment, Layout}, wgpu_gui::{LayoutElements, WgpuGui}}, wgpu::{wgpu_widget_factory::WgpuWidgetFactory, wgpu_widget_renderer::WgpuWidgetRenderer}, widget::{text::Text, widget_factory::WidgetFactory, widget_renderer}};
 
 use crate::{counter::{self, Message}, counter_gui_subview::CounterGuiSubView};
 
@@ -19,7 +19,8 @@ impl CounterGui {
 
     ) -> Self 
     {
-        let mut widget_factory = WidgetFactory::new(font, wgpu_renderer, texture_bind_group_layout);
+        let mut widget_renderer = WgpuWidgetRenderer::new();
+        let mut widget_factory = WgpuWidgetFactory::new(font, wgpu_renderer, texture_bind_group_layout, &mut widget_renderer);
 
         let text = Text::from_space(5).size(50);
         let sub_view1 = CounterGuiSubView::new(&mut widget_factory, Message::SubView1);

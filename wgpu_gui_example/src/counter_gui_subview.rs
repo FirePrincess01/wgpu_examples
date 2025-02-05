@@ -1,7 +1,7 @@
 
 
 
-use wgpu_gui::{core::{gui_functions::GuiElementSubView, layout::{Alignment, Layout}, wgpu_gui::{WgpuGui, LayoutElements}}, widget::{button::Button, text::Text, widget_factory::WidgetFactory}};
+use wgpu_gui::{core::{gui_functions::GuiElementSubView, layout::{Alignment, Layout}, wgpu_gui::{LayoutElements, WgpuGui}}, wgpu::wgpu_widget_factory::WgpuWidgetFactory, widget::{button::Button, text::Text, widget_factory::WidgetFactory}};
 
 use crate::counter::{CounterMessage, Message};
 
@@ -15,11 +15,13 @@ pub struct CounterGuiSubView {
 }
 
 impl CounterGuiSubView {
-    pub fn new(widget_factory: &mut WidgetFactory, on_changed: fn(CounterMessage) -> Message) -> Self 
+    pub fn new(widget_factory: &mut dyn WidgetFactory<CounterMessage>, on_changed: fn(CounterMessage) -> Message) -> Self 
     {
-        let button_increment = Button::new(widget_factory, "increment", 32).on_released(CounterMessage::IncrementPressed);
+        let button_increment = widget_factory.button("increment", 32, CounterMessage::IncrementPressed);
+        // let button_increment = Button::new(widget_factory, "increment", 32).on_released(CounterMessage::IncrementPressed);
         let text = Text::from_space(5).size(50);
-        let button_decrement = Button::new(widget_factory, "decrement", 32).on_released(CounterMessage::DecrementPressed);
+        let button_decrement = widget_factory.button("decrement", 32, CounterMessage::DecrementPressed);
+        // let button_decrement = Button::new(widget_factory, "decrement", 32).on_released(CounterMessage::DecrementPressed);
         let layout = Layout::new().align(Alignment::Center).horizontal_layout();
 
         Self {

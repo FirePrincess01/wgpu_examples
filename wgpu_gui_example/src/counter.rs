@@ -1,6 +1,6 @@
 use wgpu_gui::core::gui_message::GuiMessage;
 
-
+#[derive(Copy, Clone)]
 pub enum CounterMessage {
     IncrementPressed,
     DecrementPressed,

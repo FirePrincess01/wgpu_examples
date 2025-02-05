@@ -183,7 +183,8 @@ impl<'a> Renderer<'a> {
     pub fn render(&mut self, 
         meshes: &[&dyn VertexTextureShaderDraw],
         mesh_gui: &[&dyn VertexTextureShaderDraw],
-        performance_monitor: &mut PerformanceMonitor
+        performance_monitor: &mut PerformanceMonitor,
+        example_tests: &mut crate::test_examples::ExampleTests,
     ) -> Result<(), wgpu::SurfaceError>
     {
         performance_monitor.watch.start(0);
@@ -243,6 +244,8 @@ impl<'a> Renderer<'a> {
             for mesh in mesh_gui {
                 mesh.draw(&mut render_pass);
             }
+
+            example_tests.draw(&mut render_pass);
         }
 
         self.wgpu_renderer.queue().submit(std::iter::once(encoder.finish()));
