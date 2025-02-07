@@ -1,4 +1,4 @@
-use wgpu_gui::{core::{gui_functions::GuiElement, mouse_event, size::Size}, wgpu::{wgpu_widget_factory::WgpuWidgetFactory, wgpu_widget_renderer::WgpuWidgetRenderer}, widget::{button::{self, Button}, widget_factory::WidgetFactory, widget_renderer::WidgetRenderer}};
+use wgpu_gui::{core::{gui_functions::GuiElement, mouse_event, size::Size}, widget::{button::Button, widget_renderer::WidgetRenderer}};
 use wgpu_renderer::renderer::WgpuRendererInterface;
 
 
@@ -9,7 +9,7 @@ enum ExampleTestsKind {
 
 pub struct ExampleTests {
     test_kind: ExampleTestsKind,
-    widget_renderer: WgpuWidgetRenderer,
+    // widget_renderer_storage: WgpuWidgetRendererStorage,
 
     test_button: TestButton,
 
@@ -19,20 +19,23 @@ pub struct ExampleTests {
 
 impl ExampleTests {
     pub fn new(
-        font: &rusttype::Font<'static>, 
-        wgpu_renderer: &mut dyn wgpu_renderer::renderer::WgpuRendererInterface,
-        texture_bind_group_layout: &wgpu_renderer::vertex_texture_shader::TextureBindGroupLayout,
+        renderer: &mut dyn WidgetRenderer,
     ) -> Self {
-        let mut widget_renderer: WgpuWidgetRenderer = WgpuWidgetRenderer::new();
-        let mut widget_factory = WgpuWidgetFactory::new(font, wgpu_renderer, texture_bind_group_layout, &mut widget_renderer);
+        // let mut widget_renderer_storage: WgpuWidgetRendererStorage = WgpuWidgetRendererStorage::new();
+        // let mut widget_factory = WgpuWidgetRenderer{
+        //     storage: &mut widget_renderer_storage,
+        //     font,
+        //     wgpu_renderer,
+        //     texture_bind_group_layout,
+        // };
 
-        let test_button = TestButton::new(&mut widget_factory);
+        let test_button = TestButton::new(renderer);
         
         let test_kind = ExampleTestsKind::TestButton;
 
         Self { 
             test_kind,
-            widget_renderer,
+            // widget_renderer_storage,
 
             test_button,
 
@@ -57,28 +60,28 @@ impl ExampleTests {
         //     ExampleTestsKind::TestButton => self.test_button.update_device(wgpu_renderer),
         // }   
 
-        self.widget_renderer.update(wgpu_renderer);
+        // self.widget_renderer.update(wgpu_renderer);
 
     }
 
-    pub fn resize(&mut self, abs_x: u32, abs_y: u32, size: Size) {
+    pub fn resize(&mut self, widget_renderer: &mut dyn WidgetRenderer, abs_x: u32, abs_y: u32, size: Size) {
         self.window_width = size.width;
         self.window_height = size.height;
 
         match self.test_kind {
-            ExampleTestsKind::TestButton => self.test_button.resize(&mut self.widget_renderer, abs_x, abs_y, size),
+            ExampleTestsKind::TestButton => self.test_button.resize(widget_renderer, abs_x, abs_y, size),
         }   
 
     }
 
-    pub fn draw<'a>(&'a mut self, render_pass: &mut wgpu::RenderPass<'a>) {
-        // match self.test_kind {
-        //     ExampleTestsKind::TestButton => self.test_button.draw(render_pass),
-        // }   
+    // pub fn draw<'a>(&'a mut self, render_pass: &mut wgpu::RenderPass<'a>) {
+    //     // match self.test_kind {
+    //     //     ExampleTestsKind::TestButton => self.test_button.draw(render_pass),
+    //     // }   
 
-        self.widget_renderer.draw(render_pass);
+    //     self.widget_renderer_storage.draw(render_pass);
 
-    }
+    // }
     
     pub fn size(&mut self) -> Size {
         match self.test_kind {
@@ -100,11 +103,10 @@ struct TestButton {
 
 impl TestButton {
     fn new<'a>(
-        widget_factory: &'a mut dyn WidgetFactory<TestButtonMessage>,
+        renderer: &'a mut dyn WidgetRenderer,
     ) -> Self {
         let text = "Hello World!";
-        let button = widget_factory.button(text, 32, TestButtonMessage::HelloWorldButtonReleased);
-        // let button = Button::new(widget_factory, text, 32).on_released(TestButtonMessage::HelloWorldButtonReleased);
+        let button = Button::new(renderer, text, 32).on_released(TestButtonMessage::HelloWorldButtonReleased);
 
         Self { button }
     }
@@ -113,19 +115,10 @@ impl TestButton {
         self.button.mouse_event(mouse_event, model)
     }
 
-    // fn update_device(&mut self, wgpu_renderer: &mut impl WgpuRendererInterface) {
-    //     self.button.update_device(wgpu_renderer);
-    // }
-
     fn resize(&mut self, widget_renderer: &mut dyn WidgetRenderer, abs_x: u32, abs_y: u32, size: Size) {
-        // self.button.resize(abs_x, abs_y, size);
-
         self.button.resize(widget_renderer, 60, 80, size);
     }
 
-    // fn draw<'a>(&'a mut self, render_pass: &mut wgpu::RenderPass<'a>) {
-    //     self.button.draw(render_pass);
-    // }
     
     fn size(&mut self) -> Size {
         self.button.size()

@@ -14,7 +14,7 @@ mod test_examples;
 
 use counter::Message;
 use test_examples::ExampleTests;
-use wgpu_gui::core::{gui_functions::GuiElement, gui_message::GuiMessage, mouse_event::MouseEvent};
+use wgpu_gui::{core::{gui_functions::GuiElement, gui_message::GuiMessage, mouse_event::MouseEvent}, wgpu::wgpu_widget_renderer::{WgpuWidgetRenderer, WgpuWidgetRendererStorage}, widget::widget_renderer};
 use wgpu_renderer::default_window;
 use winit::event::{ElementState, MouseButton, TouchPhase, WindowEvent};
 
@@ -32,6 +32,9 @@ struct WgpuGuiExample<'a>{
     textured_quad: textured_quad::TexturedQuad,
 
     // gui
+    widget_renderer_storage: WgpuWidgetRendererStorage,
+    font: rusttype::Font<'static>,
+
     mouse_event: MouseEvent,
     counter1: counter::Counter,
     counter2: counter::Counter,
@@ -60,20 +63,20 @@ impl<'a> WgpuGuiExample<'a> {
         let font = rusttype::Font::try_from_bytes(font_data as &[u8]).expect("Error constructing Font");
 
         // gui
+        let mut widget_renderer_storage = WgpuWidgetRendererStorage::new();
+        let mut widget_renderer = WgpuWidgetRenderer {
+            storage: &mut widget_renderer_storage,
+            font: &font,
+            wgpu_renderer: &mut renderer.wgpu_renderer,
+            texture_bind_group_layout: &renderer.texture_bind_group_layout,
+        };
+
         let mouse_event = MouseEvent::new();
         let counter1 = counter::Counter::new();
         let counter2 = counter::Counter::new();
-        let counter_gui = counter_gui::CounterGui::new(
-            &font, 
-            &mut renderer.wgpu_renderer, 
-            &renderer.texture_bind_group_layout,
-        );
+        let counter_gui = counter_gui::CounterGui::new(&mut widget_renderer);
 
-        let example_tests = ExampleTests::new(
-            &font, 
-            &mut renderer.wgpu_renderer, 
-            &renderer.texture_bind_group_layout,
-        );
+        let example_tests = ExampleTests::new(&mut widget_renderer);
         
         Self {
             scale_factor,
@@ -82,6 +85,9 @@ impl<'a> WgpuGuiExample<'a> {
             performance_monitor,
 
             textured_quad,
+
+            widget_renderer_storage,
+            font,
 
             mouse_event,
             counter1,
@@ -151,8 +157,16 @@ impl<'a> default_window::DefaultWindowApp for WgpuGuiExample<'a>
         self.renderer.resize(new_size);
 
         let size = wgpu_gui::core::size::Size{width: new_size.width, height: new_size.height};
+
+        let mut widget_renderer = WgpuWidgetRenderer {
+            storage: &mut self.widget_renderer_storage,
+            font: &self.font,
+            wgpu_renderer: &mut self.renderer.wgpu_renderer,
+            texture_bind_group_layout: &self.renderer.texture_bind_group_layout,
+        };
+
         // self.counter_gui.resize(0, 0, size);
-        self.example_tests.resize(0, 0, size);
+        self.example_tests.resize(&mut widget_renderer, 0, 0, size);
     }
 
     fn update_scale_factor(&mut self, scale_factor: f32) {
@@ -250,7 +264,7 @@ impl<'a> default_window::DefaultWindowApp for WgpuGuiExample<'a>
             &[&self.textured_quad],
             &[],
             &mut self.performance_monitor,
-            &mut self.example_tests,    
+            &mut self.widget_renderer_storage,    
             )
     }
 
