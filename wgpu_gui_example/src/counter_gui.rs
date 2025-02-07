@@ -16,9 +16,6 @@ impl CounterGui {
         renderer: &mut dyn WidgetRenderer,
     ) -> Self 
     {
-        // let mut widget_renderer = WgpuWidgetRendererStorage::new();
-        // let mut widget_factory = WgpuWidgetFactory::new(font, wgpu_renderer, texture_bind_group_layout, &mut widget_renderer);
-        
         let text = Label::new(renderer, "Hello World!", 32);
         let sub_view1 = CounterGuiSubView::new( renderer, Message::SubView1);
         let sub_view2 = CounterGuiSubView::new(renderer, Message::SubView2);

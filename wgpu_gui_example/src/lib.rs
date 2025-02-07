@@ -181,7 +181,14 @@ impl<'a> default_window::DefaultWindowApp for WgpuGuiExample<'a>
         // self.counter_gui.update(&self.counter1, &self.counter2);
         // self.counter_gui.update_device();
 
-        self.example_tests.update_device(&mut self.renderer.wgpu_renderer);
+        let mut widget_renderer = WgpuWidgetRenderer {
+            storage: &mut self.widget_renderer_storage,
+            font: &self.font,
+            wgpu_renderer: &mut self.renderer.wgpu_renderer,
+            texture_bind_group_layout: &self.renderer.texture_bind_group_layout,
+        };
+
+        self.example_tests.update_device(&mut widget_renderer);
         // self.example_tests.draw();
 
     }
