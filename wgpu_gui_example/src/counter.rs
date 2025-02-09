@@ -6,6 +6,7 @@ pub enum CounterMessage {
     DecrementPressed,
 }
 
+#[derive(Copy, Clone)]
 pub enum Message {
     SubView1(CounterMessage),
     SubView2(CounterMessage),

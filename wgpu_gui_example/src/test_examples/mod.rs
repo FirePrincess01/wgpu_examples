@@ -1,4 +1,4 @@
-use wgpu_gui::{core::{gui_functions::{GuiElement, GuiElementSubView, GuiElementVisitor}, layout::{Alignment, Layout}, mouse_event, size::Size, wgpu_gui::{GuiElementContainer, LayoutElements, WgpuGui}}, widget::{button::Button, label::Label, widget_renderer::WidgetRenderer}};
+use wgpu_gui::{core::{gui_functions::{GuiElement, GuiElementEvent, GuiElementSubView, GuiElementVisitor, GuiEventResult}, layout::{Alignment, Layout}, mouse_event, size::Size, wgpu_gui::{GuiElementContainer, LayoutElements, WgpuGui}}, widget::{button::Button, label::Label, widget_renderer::WidgetRenderer}};
 use wgpu_renderer::renderer::WgpuRendererInterface;
 
 
@@ -39,14 +39,14 @@ impl ExampleTests {
         }
     }
 
-    pub fn mouse_event(&mut self, mouse_event: &mouse_event::MouseEvent, model: &mut dyn FnMut(TestButtonMessage)) -> bool {
+    pub fn mouse_event(&mut self, mouse_event: &mouse_event::MouseEvent, event_result: &mut GuiEventResult<TestButtonMessage>) -> bool {
         
         let mut mouse_event_converted = mouse_event.clone();
         mouse_event_converted.y = if self.window_height >= mouse_event_converted.y {self.window_height - mouse_event_converted.y} else {0}; 
         
         match self.test_kind {
-            ExampleTestsKind::TestButton => self.test_button.mouse_event(&mouse_event_converted, model),
-            ExampleTestsKind::TestLayout => self.test_layout.mouse_event(&mouse_event_converted, model),
+            ExampleTestsKind::TestButton => self.test_button.mouse_event(&mouse_event_converted, event_result),
+            ExampleTestsKind::TestLayout => self.test_layout.mouse_event(&mouse_event_converted, event_result),
         }   
     }
 
@@ -100,8 +100,8 @@ impl TestButton {
         Self { button }
     }
 
-    fn mouse_event(&mut self, mouse_event: &mouse_event::MouseEvent, model: &mut dyn FnMut(TestButtonMessage)) -> bool {
-        self.button.mouse_event(mouse_event, model)
+    fn mouse_event(&mut self, mouse_event: &mouse_event::MouseEvent, event_result: &mut GuiEventResult<TestButtonMessage>) -> bool {
+        self.button.mouse_event(mouse_event, event_result)
     }
 
     fn resize(&mut self, widget_renderer: &mut dyn WidgetRenderer, abs_x: u32, abs_y: u32, size: Size) {
@@ -151,30 +151,29 @@ impl TestLayout {
     }
 }
  
+impl GuiElementEvent for TestLayout {
+    type TMessage = TestButtonMessage;
+    type TSubMessage = TestButtonMessage;
+
+    fn on_event(&mut self, message: Self::TMessage) -> Self::TSubMessage {
+        message
+    }
+}
+
 impl GuiElementSubView for TestLayout {
     type TMessage = TestButtonMessage;
     type TSubMessage = TestButtonMessage;
     
     fn visit_elements(&mut self, visitor: &mut dyn GuiElementVisitor<TestButtonMessage>) {
-        
-        let mut elements: [&mut dyn GuiElement<_>; 3] = [
+        visitor.visit(&mut self.layout, &mut [
             &mut self.button0,
             &mut self.counter,
             &mut self.button1,
-        ];
-
-        visitor.visit(&mut self.layout, &mut elements);
+        ]);
     }
     
-    fn get_event_conversion_function(&self) -> fn(Self::TSubMessage) -> Self::TMessage {
-        let on_changed = |message: Self::TMessage| -> Self::TMessage { 
-            println!("inner function: {:?}", message);
-            // println!("{}", self.val);
-            
-            message 
-        };
-
-        on_changed
+    fn on_event(&mut self, event: Self::TSubMessage) -> Self::TMessage {
+        event
     }
 
 }

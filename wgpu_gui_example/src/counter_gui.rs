@@ -44,17 +44,15 @@ impl GuiElementSubView for CounterGui {
     type TSubMessage = Message;
     
     fn visit_elements(&mut self, visitor: &mut dyn wgpu_gui::core::gui_functions::GuiElementVisitor<Self::TSubMessage>) {
-        let mut elements: [&mut dyn GuiElement<_>; 3] = [
+        visitor.visit(&mut self.layout, &mut [
             &mut self.text,
             &mut self.sub_view1,
             &mut self.sub_view2,
-        ];
-
-        visitor.visit(&mut self.layout, &mut elements);
+        ]);
     }
-    
-    fn get_event_conversion_function(&self) -> fn(Self::TSubMessage) -> Self::TMessage {
-        self.on_changed
+        
+    fn on_event(&mut self, event: Self::TSubMessage) -> Self::TMessage {
+        (self.on_changed)(event)
     }  
 }
 

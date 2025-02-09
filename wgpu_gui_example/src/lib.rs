@@ -14,7 +14,7 @@ mod test_examples;
 
 use counter::Message;
 use test_examples::ExampleTests;
-use wgpu_gui::{core::{gui_functions::GuiElement, gui_message::GuiMessage, mouse_event::MouseEvent}, wgpu::wgpu_widget_renderer::{WgpuWidgetRenderer, WgpuWidgetRendererStorage}, widget::widget_renderer};
+use wgpu_gui::{core::{gui_functions::{GuiElement, GuiEventResult}, gui_message::GuiMessage, mouse_event::MouseEvent}, wgpu::wgpu_widget_renderer::{WgpuWidgetRenderer, WgpuWidgetRendererStorage}, widget::widget_renderer};
 use wgpu_renderer::default_window;
 use winit::event::{ElementState, MouseButton, TouchPhase, WindowEvent};
 
@@ -120,9 +120,17 @@ impl<'a> WgpuGuiExample<'a> {
         //     }
         // });
 
-        self.example_tests.mouse_event(&self.mouse_event, &mut |_message| {
-            println!("{:?}", _message);
-        });
+        let mut event_result = GuiEventResult::new();
+        self.example_tests.mouse_event(&self.mouse_event, &mut event_result);
+
+        for event in event_result.events {
+            match event {
+                Some(event) => {
+                    println!("lib.rs: {:?}", event);
+                },
+                None => {},
+            }
+        }
 
         true
     }

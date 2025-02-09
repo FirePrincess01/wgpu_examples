@@ -36,8 +36,6 @@ impl CounterGuiSubView {
     pub fn update(&mut self, val: i32) {
         self.text.set("blableblibloblu");
     }
-
-
 }
 
 impl GuiElementSubView for CounterGuiSubView {
@@ -45,19 +43,15 @@ impl GuiElementSubView for CounterGuiSubView {
     type TSubMessage = CounterMessage;
        
     fn visit_elements(&mut self, visitor: &mut dyn GuiElementVisitor<Self::TSubMessage>) {
-        
-        let mut elements: [&mut dyn GuiElement<_>; 3] = [
+        visitor.visit(&mut self.layout, &mut [
             &mut self.button_increment,
             &mut self.text,
             &mut self.button_decrement,
-        ];
-
-        visitor.visit(&mut self.layout, &mut elements);
+        ]);
     }
     
-        
-    fn get_event_conversion_function(&self) -> fn(Self::TSubMessage) -> Self::TMessage {
-        self.on_changed
+    fn on_event(&mut self, event: Self::TSubMessage) -> Self::TMessage {
+        (self.on_changed)(event)
     }    
 }
 
