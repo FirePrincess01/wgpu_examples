@@ -1,4 +1,4 @@
-use wgpu_gui::{core::{gui_functions::{GuiElement, GuiElementSubView}, layout::{Alignment, Layout}, mouse_event, size::Size, wgpu_gui::{LayoutElements, WgpuGui}}, widget::{button::Button, label::Label, widget_renderer::WidgetRenderer}};
+use wgpu_gui::{core::{gui_functions::{GuiElement, GuiElementSubView, GuiElementVisitor}, layout::{Alignment, Layout}, mouse_event, size::Size, wgpu_gui::{GuiElementContainer, LayoutElements, WgpuGui}}, widget::{button::Button, label::Label, widget_renderer::WidgetRenderer}};
 use wgpu_renderer::renderer::WgpuRendererInterface;
 
 
@@ -149,21 +149,29 @@ impl TestLayout {
             val: 10
         }
     }
+
+    fn visit_function2(&mut self, visitor: &mut dyn FnMut(&mut dyn GuiElement<TestButtonMessage>)) {
+        visitor(&mut self.button0);
+        visitor(&mut self.counter);
+        visitor(&mut self.button1);
+    }
 }
  
-
 impl GuiElementSubView for TestLayout {
     type TMessage = TestButtonMessage;
     type TSubMessage = TestButtonMessage;
-
-    fn get_elements(&mut self, ui: &mut WgpuGui<Self::TSubMessage>) {
-        ui.layout(&mut self.layout, &mut |elements: &mut LayoutElements<Self::TSubMessage>| {
-            elements.add(&mut self.button0);
-            elements.add(&mut self.counter);
-            elements.add(&mut self.button1);
-        });
-    }
+    
+    fn visit_elements(&mut self, visitor: &mut dyn GuiElementVisitor<TestButtonMessage>) {
         
+        let mut elements: [&mut dyn GuiElement<_>; 3] = [
+            &mut self.button0,
+            &mut self.counter,
+            &mut self.button1,
+        ];
+
+        visitor.visit(&mut self.layout, &mut elements);
+    }
+    
     fn get_event_conversion_function(&self) -> fn(Self::TSubMessage) -> Self::TMessage {
         let on_changed = |message: Self::TMessage| -> Self::TMessage { 
             println!("inner function: {:?}", message);
@@ -173,9 +181,6 @@ impl GuiElementSubView for TestLayout {
         };
 
         on_changed
-    }  
+    }
 
 }
-
-
-

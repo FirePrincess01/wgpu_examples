@@ -1,7 +1,7 @@
 
 
 
-use wgpu_gui::{core::{gui_functions::GuiElementSubView, layout::{Alignment, Layout}, wgpu_gui::{LayoutElements, WgpuGui}}, widget::{button::Button, label::Label, widget_renderer::WidgetRenderer}};
+use wgpu_gui::{core::{gui_functions::{GuiElement, GuiElementSubView, GuiElementVisitor}, layout::{Alignment, Layout}, wgpu_gui::{LayoutElements, WgpuGui}}, widget::{button::Button, label::Label, widget_renderer::WidgetRenderer}};
 
 use crate::counter::{CounterMessage, Message};
 
@@ -43,14 +43,18 @@ impl CounterGuiSubView {
 impl GuiElementSubView for CounterGuiSubView {
     type TMessage = Message;
     type TSubMessage = CounterMessage;
-    
-    fn get_elements(&mut self, ui: &mut WgpuGui<Self::TSubMessage>) {
-        ui.layout(&mut self.layout, &mut |elements: &mut LayoutElements<Self::TSubMessage>| {
-            elements.add(&mut self.button_increment);
-            elements.add(&mut self.text);
-            elements.add(&mut self.button_decrement);
-        });
+       
+    fn visit_elements(&mut self, visitor: &mut dyn GuiElementVisitor<Self::TSubMessage>) {
+        
+        let mut elements: [&mut dyn GuiElement<_>; 3] = [
+            &mut self.button_increment,
+            &mut self.text,
+            &mut self.button_decrement,
+        ];
+
+        visitor.visit(&mut self.layout, &mut elements);
     }
+    
         
     fn get_event_conversion_function(&self) -> fn(Self::TSubMessage) -> Self::TMessage {
         self.on_changed
