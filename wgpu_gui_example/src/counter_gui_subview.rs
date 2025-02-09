@@ -34,7 +34,7 @@ impl CounterGuiSubView {
     }
 
     pub fn update(&mut self, val: i32) {
-        self.text.set("blableblibloblu");
+        self.text.set(String::from("blableblibloblu"));
     }
 }
 

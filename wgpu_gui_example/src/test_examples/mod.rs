@@ -116,63 +116,63 @@ impl TestButton {
 
 
 pub struct TestLayout {
-    button0: Button<TestButtonMessage>,
-    counter: Label,
-    button1: Button<TestButtonMessage>,
+    btn_0: Button<TestButtonMessage>,
+    lbl_counter: Label,
+    btn_1: Button<TestButtonMessage>,
     layout: Layout,
 
     val: u32,
 }
 
 impl TestLayout {
-    pub fn new<'a>(
-        renderer: &'a mut dyn WidgetRenderer,
+    pub fn new<'b>(
+        renderer: &'b mut dyn WidgetRenderer,
     ) -> Self {
-        let button0 = Button::new(renderer, "Button 0", 32)
+        let button0 = Button::new(renderer, "Count Up", 32)
             .on_released(TestButtonMessage::HelloWorldButtonReleased0);
 
         let counter = Label::new(renderer, "000", 32);
 
-        let button1 = Button::new(renderer, "Button 1", 32)
+        let button1 = Button::new(renderer, "Count Down", 32)
             .on_released(TestButtonMessage::HelloWorldButtonReleased1);
 
         let layout = Layout::new()
                 .align(Alignment::RightBottom)
                 .vertical_layout();
 
+        let val_str: String = String::from("   ");
+
         Self {
-            button0,
-            counter,
-            button1,
+            btn_0: button0,
+            lbl_counter: counter,
+            btn_1: button1,
             layout,
 
-            val: 10
+            val: 10,
         }
     }
 }
  
-impl GuiElementEvent for TestLayout {
-    type TMessage = TestButtonMessage;
-    type TSubMessage = TestButtonMessage;
-
-    fn on_event(&mut self, message: Self::TMessage) -> Self::TSubMessage {
-        message
-    }
-}
-
 impl GuiElementSubView for TestLayout {
     type TMessage = TestButtonMessage;
     type TSubMessage = TestButtonMessage;
     
     fn visit_elements(&mut self, visitor: &mut dyn GuiElementVisitor<TestButtonMessage>) {
         visitor.visit(&mut self.layout, &mut [
-            &mut self.button0,
-            &mut self.counter,
-            &mut self.button1,
+            &mut self.btn_1,
+            &mut self.lbl_counter,
+            &mut self.btn_0,
         ]);
     }
     
     fn on_event(&mut self, event: Self::TSubMessage) -> Self::TMessage {
+        match event {
+            TestButtonMessage::HelloWorldButtonReleased0 => self.val = self.val + 1,
+            TestButtonMessage::HelloWorldButtonReleased1 => self.val = self.val.max(1) - 1,
+        }
+
+        self.lbl_counter.set(self.val.to_string());
+                
         event
     }
 

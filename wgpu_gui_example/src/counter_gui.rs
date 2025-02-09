@@ -32,14 +32,14 @@ impl CounterGui {
     }
 
     pub fn update(&mut self, counter1: &counter::Counter, counter2: &counter::Counter) {
-        self.text.set("lalalallalal");
+        self.text.set(String::from("lalalallalal"));
         self.sub_view1.update(counter1.value());
         self.sub_view2.update(counter2.value());
     }
 }
 
 
-impl GuiElementSubView for CounterGui {
+impl GuiElementSubView for CounterGui{
     type TMessage = Message;
     type TSubMessage = Message;
     
