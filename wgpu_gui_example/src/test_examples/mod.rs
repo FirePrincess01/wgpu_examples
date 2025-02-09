@@ -149,12 +149,6 @@ impl TestLayout {
             val: 10
         }
     }
-
-    fn visit_function2(&mut self, visitor: &mut dyn FnMut(&mut dyn GuiElement<TestButtonMessage>)) {
-        visitor(&mut self.button0);
-        visitor(&mut self.counter);
-        visitor(&mut self.button1);
-    }
 }
  
 impl GuiElementSubView for TestLayout {
