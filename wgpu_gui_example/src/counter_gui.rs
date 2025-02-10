@@ -1,5 +1,8 @@
 
-use wgpu_gui::{core::{gui_functions::{GuiElement, GuiElementSubView}, layout::{Alignment, Layout}}, widget::{label::Label, widget_renderer::WidgetRenderer}};
+use wgpu_gui::core::gui_functions::GuiElementSubView;
+use wgpu_gui::core::layout::{Alignment, Layout};
+use wgpu_gui::widget::widget_renderer::WidgetRenderer;
+use wgpu_gui::widget::label::Label;
 
 use crate::{counter::{self, Message}, counter_gui_subview::CounterGuiSubView};
 
@@ -31,10 +34,10 @@ impl CounterGui {
         }
     }
 
-    pub fn update(&mut self, counter1: &counter::Counter, counter2: &counter::Counter) {
+    pub fn _update(&mut self, counter1: &counter::Counter, counter2: &counter::Counter) {
         self.text.set(String::from("lalalallalal"));
-        self.sub_view1.update(counter1.value());
-        self.sub_view2.update(counter2.value());
+        self.sub_view1._update(counter1._value());
+        self.sub_view2._update(counter2._value());
     }
 }
 

@@ -1,7 +1,7 @@
 use wgpu_gui::{core::{gui_functions::{GuiElement, GuiElementSubView, GuiElementVisitor, GuiEventResult}, layout::{Alignment, Layout}, mouse_event, size::Size}, widget::{button::Button, label::Label, widget_renderer::WidgetRenderer}};
 
 
-
+#[allow(dead_code)]
 enum ExampleTestsKind {
     TestButton,
     TestLayout,
@@ -70,9 +70,9 @@ impl ExampleTests {
 
     }
     
-    pub fn size(&mut self) -> Size {
+    pub fn _size(&mut self) -> Size {
         match self.test_kind {
-            ExampleTestsKind::TestButton => self.test_button.size(),
+            ExampleTestsKind::TestButton => self.test_button._size(),
             ExampleTestsKind::TestLayout => self.test_layout.size(),
         }   
 
@@ -103,12 +103,12 @@ impl TestButton {
         self.button.mouse_event(mouse_event, event_result)
     }
 
-    fn resize(&mut self, widget_renderer: &mut dyn WidgetRenderer, abs_x: u32, abs_y: u32, size: Size) {
+    fn resize(&mut self, widget_renderer: &mut dyn WidgetRenderer, _abs_x: u32, _abs_y: u32, size: Size) {
         self.button.resize(widget_renderer, 60, 80, size);
     }
 
     
-    fn size(&mut self) -> Size {
+    fn _size(&mut self) -> Size {
         self.button.size()
     }
 }
@@ -139,7 +139,7 @@ impl TestLayout {
                 .align(Alignment::RightBottom)
                 .vertical_layout();
 
-        let val_str: String = String::from("   ");
+        let _val_str: String = String::from("   ");
 
         Self {
             btn_0: button0,

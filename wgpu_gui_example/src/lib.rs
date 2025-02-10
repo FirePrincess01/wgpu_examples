@@ -13,7 +13,7 @@ mod test_examples;
 
 
 use test_examples::ExampleTests;
-use wgpu_gui::{core::{gui_functions::{GuiElement, GuiEventResult}, mouse_event::MouseEvent}, wgpu::wgpu_widget_renderer::{WgpuWidgetRenderer, WgpuWidgetRendererStorage}};
+use wgpu_gui::{core::{gui_functions::GuiEventResult, mouse_event::MouseEvent}, wgpu::wgpu_widget_renderer::{WgpuWidgetRenderer, WgpuWidgetRendererStorage}};
 use wgpu_renderer::default_window;
 use winit::event::{ElementState, MouseButton, TouchPhase, WindowEvent};
 
@@ -35,9 +35,9 @@ struct WgpuGuiExample<'a>{
     font: rusttype::Font<'static>,
 
     mouse_event: MouseEvent,
-    counter1: counter::Counter,
-    counter2: counter::Counter,
-    counter_gui: counter_gui::CounterGui,
+    _counter1: counter::Counter,
+    _counter2: counter::Counter,
+    _counter_gui: counter_gui::CounterGui,
 
     // example tests
     example_tests: ExampleTests,
@@ -89,9 +89,9 @@ impl<'a> WgpuGuiExample<'a> {
             font,
 
             mouse_event,
-            counter1,
-            counter2,
-            counter_gui,
+            _counter1: counter1,
+            _counter2: counter2,
+            _counter_gui: counter_gui,
 
             example_tests,
         }

@@ -6,6 +6,7 @@ pub enum CounterMessage {
     DecrementPressed,
 }
 
+#[allow(dead_code)]
 #[derive(Copy, Clone)]
 pub enum Message {
     SubView1(CounterMessage),
@@ -23,7 +24,7 @@ impl Counter {
         }
     }
 
-    pub fn value(&self) -> i32 {
+    pub fn _value(&self) -> i32 {
         self.value
     }
 }
