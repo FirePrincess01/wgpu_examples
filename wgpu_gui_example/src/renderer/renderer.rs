@@ -1,6 +1,7 @@
 //! implements all the render pipelines
 
 use crate::performance_monitor::PerformanceMonitor;
+use wgpu_gui::wgpu::wgpu_widget_renderer::WgpuWidgetRendererStorage;
 use wgpu_renderer::renderer::{WgpuRenderer, self};
 use wgpu_renderer::vertex_color_shader::{self, VertexColorShaderDraw};
 use wgpu_renderer::vertex_texture_shader::{self, VertexTextureShaderDraw};
@@ -183,7 +184,8 @@ impl<'a> Renderer<'a> {
     pub fn render(&mut self, 
         meshes: &[&dyn VertexTextureShaderDraw],
         mesh_gui: &[&dyn VertexTextureShaderDraw],
-        performance_monitor: &mut PerformanceMonitor
+        performance_monitor: &mut PerformanceMonitor,
+        wiget_renderer_storage: &mut WgpuWidgetRendererStorage,
     ) -> Result<(), wgpu::SurfaceError>
     {
         performance_monitor.watch.start(0);
@@ -243,6 +245,8 @@ impl<'a> Renderer<'a> {
             for mesh in mesh_gui {
                 mesh.draw(&mut render_pass);
             }
+
+            wiget_renderer_storage.draw(&mut render_pass);
         }
 
         self.wgpu_renderer.queue().submit(std::iter::once(encoder.finish()));
