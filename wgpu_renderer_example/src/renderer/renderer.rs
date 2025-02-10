@@ -11,7 +11,7 @@ pub struct Renderer<'a>
     // wgpu_renderer
     pub wgpu_renderer: WgpuRenderer<'a>,
 
-    pub camera_bind_group_layout: vertex_color_shader::CameraBindGroupLayout,
+    pub _camera_bind_group_layout: vertex_color_shader::CameraBindGroupLayout,
     pub texture_bind_group_layout: vertex_texture_shader::TextureBindGroupLayout,
 
     _pipeline_color: vertex_color_shader::Pipeline,
@@ -108,7 +108,7 @@ impl<'a> Renderer<'a> {
         Self {
             wgpu_renderer,
 
-            camera_bind_group_layout,
+            _camera_bind_group_layout: camera_bind_group_layout,
             texture_bind_group_layout,
 
             _pipeline_color: pipeline_color,
