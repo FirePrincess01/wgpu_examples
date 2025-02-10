@@ -1,5 +1,4 @@
-use wgpu_gui::{core::{gui_functions::{GuiElement, GuiElementEvent, GuiElementSubView, GuiElementVisitor, GuiEventResult}, layout::{Alignment, Layout}, mouse_event, size::Size, wgpu_gui::{GuiElementContainer, LayoutElements, WgpuGui}}, widget::{button::Button, label::Label, widget_renderer::WidgetRenderer}};
-use wgpu_renderer::renderer::WgpuRendererInterface;
+use wgpu_gui::{core::{gui_functions::{GuiElement, GuiElementSubView, GuiElementVisitor, GuiEventResult}, layout::{Alignment, Layout}, mouse_event, size::Size}, widget::{button::Button, label::Label, widget_renderer::WidgetRenderer}};
 
 
 

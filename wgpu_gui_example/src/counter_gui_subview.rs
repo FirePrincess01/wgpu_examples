@@ -1,7 +1,7 @@
 
 
 
-use wgpu_gui::{core::{gui_functions::{GuiElement, GuiElementSubView, GuiElementVisitor}, layout::{Alignment, Layout}, wgpu_gui::{LayoutElements, WgpuGui}}, widget::{button::Button, label::Label, widget_renderer::WidgetRenderer}};
+use wgpu_gui::{core::{gui_functions::{GuiElementSubView, GuiElementVisitor}, layout::{Alignment, Layout}}, widget::{button::Button, label::Label, widget_renderer::WidgetRenderer}};
 
 use crate::counter::{CounterMessage, Message};
 

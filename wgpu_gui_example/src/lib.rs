@@ -12,9 +12,8 @@ mod counter_gui_subview;
 mod test_examples;
 
 
-use counter::Message;
 use test_examples::ExampleTests;
-use wgpu_gui::{core::{gui_functions::{GuiElement, GuiEventResult}, gui_message::GuiMessage, mouse_event::MouseEvent}, wgpu::wgpu_widget_renderer::{WgpuWidgetRenderer, WgpuWidgetRendererStorage}, widget::widget_renderer};
+use wgpu_gui::{core::{gui_functions::{GuiElement, GuiEventResult}, mouse_event::MouseEvent}, wgpu::wgpu_widget_renderer::{WgpuWidgetRenderer, WgpuWidgetRendererStorage}};
 use wgpu_renderer::default_window;
 use winit::event::{ElementState, MouseButton, TouchPhase, WindowEvent};
 

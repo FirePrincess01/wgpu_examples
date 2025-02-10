@@ -1,5 +1,5 @@
 
-use wgpu_gui::{core::{gui_functions::{GuiElement, GuiElementSubView}, layout::{Alignment, Layout}, wgpu_gui::{LayoutElements, WgpuGui}}, widget::{label::Label, widget_renderer::WidgetRenderer}};
+use wgpu_gui::{core::{gui_functions::{GuiElement, GuiElementSubView}, layout::{Alignment, Layout}}, widget::{label::Label, widget_renderer::WidgetRenderer}};
 
 use crate::{counter::{self, Message}, counter_gui_subview::CounterGuiSubView};
 
